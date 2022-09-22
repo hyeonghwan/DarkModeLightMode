@@ -96,8 +96,9 @@ class ModeView: UIView {
     
     func updateImage(_ image: UIImage?){
         self.imageView.image = image
-        print("updateImage")
+        
     }
+    
     
 }
 private extension ModeView {

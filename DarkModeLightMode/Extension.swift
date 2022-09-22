@@ -35,12 +35,15 @@ extension UIImage {
         else { return nil }
       
         filter.setValue(ciImage, forKey: kCIInputImageKey)
-        print("setValue334214")
+    
         guard let outputImage = filter.outputImage else {print("fail"); return nil }
-        print("outputimage")
-        print(UIImage(ciImage: outputImage).size)
+    
         return UIImage(ciImage: outputImage)
     }
+    
+    /// 이미지 사이즈 조정 함수
+    /// - Parameter size: 이미지 사이즈
+    /// - Returns: 이미지
     func resized(_ size: CGSize) -> UIImage{
         return UIGraphicsImageRenderer(size: size).image { _ in
             draw(in: CGRect(origin: .zero, size: size))
@@ -51,6 +54,7 @@ extension UIImage {
 
 //라벨 환경설정
 extension UILabel {
+    // 타이틀 라벨 설정
     func settingTitleLabel() {
          self.backgroundColor = .clear
         self.textColor = UIColor.black | UIColor.white
@@ -64,10 +68,8 @@ extension UILabel {
          NSMutableAttributedString(
              string:"사용하실 모드를 \n  선택해주세요!", attributes: [NSAttributedString.Key.kern: 0.15, NSAttributedString.Key.paragraphStyle: paragraphStyle])
     }
-    
+    // 라벨 설정
     func settingRedLabel() {
-
-        
         self.frame = CGRect(x: 0, y: 0, width: 216, height: 41)
         self.backgroundColor = .clear
         self.textColor = DefaultStyle.defaultStyle.tint
@@ -80,7 +82,4 @@ extension UILabel {
         self.textAlignment = .center
         self.attributedText = NSMutableAttributedString(string: "화면 모드는 [메뉴 > 설정]에서\n언제든지 변경하실 수 있습니다.", attributes: [NSAttributedString.Key.kern: 0.08, NSAttributedString.Key.paragraphStyle: paragraphStyle])
     }
-    
-    
-    
 }

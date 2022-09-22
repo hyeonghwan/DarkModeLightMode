@@ -18,8 +18,17 @@ class ViewController: UIViewController {
     var viewModel: DarkModeLightModeProtocol
     
     init(_ viewModel: DarkModeLightModeProtocol = ViewModel()){
+        
         self.viewModel = viewModel
+        
         super.init(nibName: nil, bundle: nil)
+        
+        if self.viewModel.modeValue == .darkValue{
+            self.overrideUserInterfaceStyle = .dark
+        }else{
+            self.overrideUserInterfaceStyle = .light
+        }
+       
     }
     
     required init?(coder: NSCoder) {
@@ -46,6 +55,7 @@ class ViewController: UIViewController {
     
     private lazy var okButton: OKButton = {
         let button = OKButton()
+        button.addTarget(self, action: #selector(settingModeSubmit(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -76,7 +86,7 @@ class ViewController: UIViewController {
     }
     
     
-    /// mode에 따른 이미지 변경
+    /// mode에 따른 이미지 변경 -> ViewModel 의 updateImageForCurrentTraitCollection 에서 호출
     private func setImageDisplayMode(){
         
             if self.traitCollection.userInterfaceStyle == .dark {
@@ -91,6 +101,7 @@ class ViewController: UIViewController {
         
     }
     
+    // mode Change animation -> viewModel.updateUserInterfaceStyle 에서 호출
     private func setDisplayMode() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {return
@@ -100,6 +111,8 @@ class ViewController: UIViewController {
                 self.modeChangeAnimation(.light)
             case .darkValue:
                 self.modeChangeAnimation(.dark)
+            case .unspecified:
+                break
             }
         }
     }
@@ -109,7 +122,6 @@ class ViewController: UIViewController {
             self.overrideUserInterfaceStyle = style
                self.view.backgroundColor = .secondarySystemBackground
            }) { (_) in
-               print("animation done")
            }
     }
     
@@ -122,8 +134,6 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ModeChaneDelegate{
-    
-    
     
     /// ModeView 에서 버튼 클릭을 했을때 이 함수 호출
     /// - Parameter mode: dark OR light
@@ -145,6 +155,17 @@ extension ViewController: ModeChaneDelegate{
 
 private extension ViewController{
     
+    /// OKButton 을 클릭했을시 불리는 함수
+    /// - Parameter sender: button
+    @objc func settingModeSubmit(_ sender: UIButton) {
+        print("settingModeSubmit")
+        let vc = PresentingViewController()
+        API.write(style: [API.appearance : viewModel.modeValue]) { [weak self] in
+            guard let self = self else {return}
+            self.viewModel.updateViewMode()
+            self.present(vc, animated: true)
+        }
+    }
     private func configure() {
         self.view.backgroundColor = .secondarySystemBackground
         [titleLabel,redLabel,darkModeView,lightModeView,okButton].forEach{

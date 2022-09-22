@@ -16,7 +16,8 @@ enum Mode: String{
 
 // 앱에서 설정할 mode의 값
 // viewModel에서 관리
-enum ModeValue {
+enum ModeValue: Codable{
     case darkValue
     case lightValue
+    case unspecified
 }
