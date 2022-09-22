@@ -13,7 +13,8 @@ class OKButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.titleLabel?.textAlignment = .center
-        self.backgroundColor = UIColor(red: 0.263, green: 0.61, blue: 0.988, alpha: 1)
+        self.backgroundColor = UIColor(red: 0.263, green: 0.61, blue: 0.988, alpha: 1) | UIColor.systemCyan
+        
         self.setTitleColor(UIColor.white, for: .normal)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.62

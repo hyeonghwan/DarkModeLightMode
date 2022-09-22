@@ -15,8 +15,9 @@ protocol ModeChaneDelegate {
 
 class ViewController: UIViewController {
   
-    var viewModel: ViewModel
-    init(_ viewModel: ViewModel = ViewModel()){
+    var viewModel: DarkModeLightModeProtocol
+    
+    init(_ viewModel: DarkModeLightModeProtocol = ViewModel()){
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -48,37 +49,93 @@ class ViewController: UIViewController {
         return button
     }()
     
+    private let imageModel = ImageModel()
+    
+    private lazy var imageSize = imageModel.imageSize
+    
     private lazy var darkModeView = ModeView(frame: .zero,
-                                             mode: viewModel.darkMode,
-                                             image: viewModel.darkImage,
+                                             mode: .dark,
+                                             image: imageModel.darkImage,
                                              value: viewModel.modeValue,
                                              delegate: self)
     private lazy var lightModeView = ModeView(frame: .zero,
-                                              mode: viewModel.lightMode,
-                                              image: viewModel.lightImage,
+                                              mode: .light,
+                                              image: imageModel.lightImage,
                                               value: viewModel.modeValue,
                                               delegate: self)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = .systemBackground
         configure()
-        
+
         self.viewModel.darkModeReloadView = self.darkModeView.updateUI(_:)
         self.viewModel.lightModeReloadView = self.lightModeView.updateUI(_:)
+        self.viewModel.updateUserInterfaceStyle = self.setDisplayMode
+        self.viewModel.updateImageForCurrentTraitCollection = self.setImageDisplayMode
     }
-   
     
+    
+    /// mode에 따른 이미지 변경
+    private func setImageDisplayMode(){
+        
+            if self.traitCollection.userInterfaceStyle == .dark {
+                
+                self.darkModeView.updateImage(self.imageModel.darkImage.invertedColors()?.resized(self.imageSize))
+                self.lightModeView.updateImage(self.imageModel.lightImage.invertedColors()?.resized(self.imageSize))
+            }else {
+                
+                self.darkModeView.updateImage(self.imageModel.darkImage)
+                self.lightModeView.updateImage(self.imageModel.lightImage)
+            }
+        
+    }
+    
+    private func setDisplayMode() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {return
+            }
+            switch self.viewModel.modeValue {
+            case .lightValue:
+                self.modeChangeAnimation(.light)
+            case .darkValue:
+                self.modeChangeAnimation(.dark)
+            }
+        }
+    }
+    
+    private func modeChangeAnimation(_ style: UIUserInterfaceStyle) {
+        UIView.animate(withDuration: 0.5, animations: {
+            self.overrideUserInterfaceStyle = style
+               self.view.backgroundColor = .secondarySystemBackground
+           }) { (_) in
+               print("animation done")
+           }
+    }
+    
+    //ViewController 의 overrideUserInterfaceStyle 이 변경 되었을때 호출
+    // -> updateImageForCurrent call (image convert 함수)
+    internal override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        viewModel.updateImageForCurrentTraitCollection?()
+    }
 }
 
 extension ViewController: ModeChaneDelegate{
+    
+    
+    
+    /// ModeView 에서 버튼 클릭을 했을때 이 함수 호출
+    /// - Parameter mode: dark OR light
+    ///  dark 버튼을 눌렀는지 OR light 버튼을 눌렀는지 판별후 -> vc의 modeValue 변경
     func modeChange(_ mode: Mode) {
         switch mode {
         case .dark:
             self.modeValue = .darkValue
+
         case .light:
             self.modeValue = .lightValue
+            
         case .none:
             break
         }
@@ -89,7 +146,7 @@ extension ViewController: ModeChaneDelegate{
 private extension ViewController{
     
     private func configure() {
-        
+        self.view.backgroundColor = .secondarySystemBackground
         [titleLabel,redLabel,darkModeView,lightModeView,okButton].forEach{
             self.view.addSubview($0)
         }

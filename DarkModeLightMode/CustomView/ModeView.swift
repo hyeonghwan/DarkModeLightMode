@@ -16,17 +16,12 @@ import SnapKit
 /// 2. 라이트모드
 class ModeView: UIView {
     
-    var mode: Mode = {
+    private var mode: Mode = {
         let mode = Mode.none
         return mode
     }()
     
-    var modeValue: ModeValue? {
-        didSet{
-            print(self.modeValue)
-        }
-    }
-    
+    private var modeValue: ModeValue?
     
     var modeChangeDelegate: ModeChaneDelegate?
     
@@ -39,7 +34,7 @@ class ModeView: UIView {
         return stack
     }()
     
-    private lazy var imageView: UIImageView = {
+    lazy var imageView: UIImageView = {
         let view = UIImageView()
         
         view.contentMode = .scaleAspectFit
@@ -52,7 +47,7 @@ class ModeView: UIView {
     //다크모드 , 라이트모드 라벨
     private lazy var modeNameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+        label.textColor = UIColor.black | UIColor.white
         label.font = UIFont(name: "NanumGothicBold", size: 20)
         label.attributedText = NSMutableAttributedString(string: "", attributes: [NSAttributedString.Key.kern: 0.1])
         return label
@@ -74,7 +69,9 @@ class ModeView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         configure()
+       
     }
     
     convenience init(frame: CGRect, mode: Mode, image: UIImage, value: ModeValue, delegate: ModeChaneDelegate) {
@@ -85,6 +82,7 @@ class ModeView: UIView {
         self.modeChangeDelegate = delegate
         self.modeValue = value
         modeSelected()
+        
     }
     
     required init?(coder: NSCoder) {
@@ -96,10 +94,26 @@ class ModeView: UIView {
         self.selectButton.isSelected = flag
     }
     
+    func updateImage(_ image: UIImage?){
+        self.imageView.image = image
+        print("updateImage")
+    }
+    
 }
 private extension ModeView {
     
-    /// 초기 modeValue 값으로 기본값 설정 함수
+//    // MARK: - Dark Mode Support
+//    private func updateImageForCurrentTraitCollection() {
+//        if traitCollection.userInterfaceStyle == .dark {
+//            imageView.image = originalImage?.invertedColors()
+//        } else {
+//            imageView.image = originalImage
+//        }
+//    }
+
+   
+    
+    /// 초기 modeValue 값으로 mode(dark or light)별로 기본값 설정 함수
     private func modeSelected(){
         switch self.mode{
         case .light:

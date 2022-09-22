@@ -9,11 +9,51 @@ import Foundation
 import UIKit
 
 
+infix operator |: AdditionPrecedence
+
+extension UIColor {
+        /// Easily define two colors for both light and dark mode.
+        /// - Parameters:
+        ///   - lightMode: The color to use in light mode.
+        ///   - darkMode: The color to use in dark mode.
+        /// - Returns: A dynamic color that uses both given colors respectively for the given user interface style.
+        static func | (lightMode: UIColor, darkMode: UIColor) -> UIColor {
+            guard #available(iOS 13.0, *) else { return lightMode }
+            return UIColor { (traitCollection) -> UIColor in
+                return traitCollection.userInterfaceStyle == .light ? lightMode : darkMode
+            }
+        }
+}
+
+
+extension UIImage {
+    /// Inverts the colors from the current image. Black turns white, white turns black etc.
+    func invertedColors() -> UIImage? {
+
+        guard let ciImage = CIImage(image: self) ?? ciImage,
+              let filter = CIFilter(name: "CIColorInvert")
+        else { return nil }
+      
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        print("setValue334214")
+        guard let outputImage = filter.outputImage else {print("fail"); return nil }
+        print("outputimage")
+        print(UIImage(ciImage: outputImage).size)
+        return UIImage(ciImage: outputImage)
+    }
+    func resized(_ size: CGSize) -> UIImage{
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
+
+
 //라벨 환경설정
 extension UILabel {
     func settingTitleLabel() {
-         self.backgroundColor = .systemBackground
-         self.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+         self.backgroundColor = .clear
+        self.textColor = UIColor.black | UIColor.white
          self.font = UIFont(name: "NanumGothicExtraBold", size: 30)
          self.numberOfLines = 0
          self.lineBreakMode = .byWordWrapping
@@ -26,9 +66,12 @@ extension UILabel {
     }
     
     func settingRedLabel() {
+
+        
         self.frame = CGRect(x: 0, y: 0, width: 216, height: 41)
-        self.backgroundColor = .white
-        self.textColor = UIColor(red: 0.892, green: 0.368, blue: 0.368, alpha: 1)
+        self.backgroundColor = .clear
+        self.textColor = DefaultStyle.defaultStyle.tint
+        
         self.font = UIFont(name: "NanumGothicBold", size: 16)
         self.numberOfLines = 0
         self.lineBreakMode = .byWordWrapping
